@@ -1,5 +1,5 @@
 async function drawParabola() {
-  
+
   // 0. Data model
   const fn = x => Math.pow(x, 2)
 
@@ -36,7 +36,7 @@ async function drawParabola() {
   dimensions.boundedHeight = dimensions.height
     - dimensions.margin.top
     - dimensions.margin.bottom
-  
+
 
   // 3. Draw canvas
 
@@ -64,7 +64,7 @@ async function drawParabola() {
     .nice()
 
   // 5. Draw data
-  
+
   const lineGenerator = d3.line()
     .curve(d3.curveCatmullRomOpen)
     .x(d => xScale(xAccessor(d)))
@@ -96,5 +96,38 @@ async function drawParabola() {
         dimensions.boundedWidth/2
       }px)`)
 
+
+  let data = [
+    {x:xScale(0), y:yScale(0)},
+    {x:xScale(2), y:yScale(0)}
+  ]
+
+  const xLineGenerator = d3.line()
+    .x(d => d.x)
+    .y(d => d.y)
+
+  const deltaPath = bounds.append("path")
+      .attr("d", xLineGenerator(data))
+      .attr("stroke-width", 2)
+
+  const dragC = d3.drag().on('drag', dragCircle)
+
+  function dragCircle(d) {
+    d3.select(this).attr("cx", d.x += d3.event.dx)
+    updatePath()
+  }
+
+  const circle = bounds
+    .selectAll('circle')
+    .data(data)
+    .enter().append('circle')
+      .attr('r', 5)
+      .attr('cx', d => d.x)
+      .attr('cy', d => d.y)
+    .call(dragC)
+
+  function updatePath() {
+    deltaPath.attr('d', xLineGenerator(data));
+  }
 }
 drawParabola()

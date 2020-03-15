@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        Different length lines on same graph - d3.js
+    </title>
+    <script src="//d3js.org/d3.v3.min.js"></script>
+
+    <style>
+        svg {
+            border: 1px solid;
+        }
+        
+        path {
+            stroke-width: 6;
+            stroke: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var svg = d3.select("body").append("svg").attr({
+                width: 500,
+                height: 500
+            }),
+            data = [],
+            lineFunction = d3.svg.line()
+            .x(function(data) {
+                return data.x;
+            })
+            .y(function(data) {
+                return data.y;
+            }),
+            path, isDown = false,
+            count = 0;
+
+        var dragP = d3.behavior.drag().on('drag', dragPath),
+            dragC = d3.behavior.drag().on('drag', dragCircle);
+
+        // functions defined for dragging
+        function dragPath(dataSource) {
+            var e = d3.event;
+            data.forEach(function(datum, index) {
+                datum.x += e.dx;
+                datum.y += e.dy;
+            });
+            updatePath();
+            updateCircle();
+        }
+
+        function dragCircle(dataSource) {
+            var e = d3.event;
+            dataSource.x += e.dx;
+            dataSource.y += e.dy;
+            updateCircle();
+            updatePath();
+        }
+
+
+        // functions define for first line render
+        function updatePath() {
+            if (!path) {
+                path = svg.append('path');
+            }
+            path.attr('d', lineFunction(data));
+        }
+
+        function updateCircle() {
+            circle = svg.selectAll('circle').data(data);
+            circle.enter().append('circle').attr('r', 0).transition().duration(500).attr('r', 10);
+            circle.attr('cx', function(d) {
+                    return d.x;
+                })
+                .attr('cy', function(d) {
+                    return d.y;
+                });
+        }
+
+        svg.on('mousedown', function() {
+                var m = d3.mouse(this);
+                if (!count) {
+                    if (!isDown) {
+                        data[0] = {
+                            x: m[0],
+                            y: m[1]
+                        };
+                        updatePath();
+                        updateCircle();
+                    } else {
+                        updateCircle();
+                        d3.selectAll('circle').call(dragC);
+                        path.call(dragP);
+                        count++;
+                        console.log(data);
+                    }
+                }
+                isDown = !isDown;
+            })
+            .on('mousemove', function() {
+                var m2 = d3.mouse(this);
+
+                console.log(path && count === 0)
+
+                if (path && count === 0) {
+                    if (isDown) {
+                        data[1] = {
+                            x: m2[0],
+                            y: m2[1]
+                        };
+                        updatePath();
+                    }
+                }
+            });
+    </script>
+</body>
+
+</html>
