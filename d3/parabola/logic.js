@@ -9,7 +9,7 @@ async function drawParabola() {
           x:d, y:fn(d)
       }
   })
-
+  console.log({dataset})
   const xAccessor = d => d.x
   const yAccessor = d => d.y
 
@@ -97,24 +97,46 @@ async function drawParabola() {
       }px)`)
 
 
+  // draw delta dragable line
   let data = [
     {x:xScale(0), y:yScale(0)},
     {x:xScale(2), y:yScale(0)}
   ]
 
-  const xLineGenerator = d3.line()
+  const deltaLineGenerator = d3.line()
     .x(d => d.x)
     .y(d => d.y)
 
-  const deltaPath = bounds.append("path")
-      .attr("d", xLineGenerator(data))
+  const deltaLine = bounds.append("path")
+      .attr("d", deltaLineGenerator(data))
       .attr("stroke-width", 2)
 
   const dragC = d3.drag().on('drag', dragCircle)
 
-  function dragCircle(d) {
-    d3.select(this).attr("cx", d.x += d3.event.dx)
+  function dragCircle(d, i, nodes) {
+    
+    const current = nodes[i]
+    const pair = nodes[i ? 0 : 1]
+
+    // update both circles equidistance x position
+    d3.select(current).attr("cx", (position) => position.x += d3.event.dx)
+    d3.select(pair).attr("cx", (position) => position.x -= d3.event.dx)
+
+    // update delta line
     updatePath()
+
+    // update epsilon line
+    const x0 = xScale.invert(data[0].x)
+    const x1 = xScale.invert(data[1].x)
+
+    const y0Scaled = yScale(fn(x0))
+    const y1Scaled = yScale(fn(x1))
+
+    ran[0].y = y0Scaled
+    ran[1].y = y1Scaled
+
+    updateEpsilon()
+
   }
 
   const circle = bounds
@@ -127,7 +149,25 @@ async function drawParabola() {
     .call(dragC)
 
   function updatePath() {
-    deltaPath.attr('d', xLineGenerator(data));
+    deltaLine.attr('d', deltaLineGenerator(data));
+  }
+
+  // draw epsilon path
+  let ran = [
+    {x:xScale(1), y:yScale(fn(0))},
+    {x:xScale(1), y:yScale(fn(2))}
+  ]
+
+  const epsilonLineGenerator = d3.line()
+    .x(d => d.x)
+    .y(d => d.y)
+
+  const epsilonLine = bounds.append("path")
+      .attr("d", epsilonLineGenerator(ran))
+      .attr("stroke-width", 2)
+
+  function updateEpsilon() {
+    epsilonLine.attr('d', epsilonLineGenerator(ran));
   }
 }
 drawParabola()
