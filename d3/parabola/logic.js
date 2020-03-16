@@ -1,15 +1,15 @@
 async function drawParabola() {
 
   // 0. Data model
-  const fn = x => Math.pow(x, 2)
+  const fn = x => 1/x // Math.pow(x, 2)
 
   // 1. Access data
-  let dataset = await d3.range(-10, 11).map(d => {
+  let dataset = await makeArr(-6, 6, 1000).map(d => {
       return {
           x:d, y:fn(d)
       }
   })
-  console.log({dataset})
+
   const xAccessor = d => d.x
   const yAccessor = d => d.y
 
@@ -65,16 +65,8 @@ async function drawParabola() {
 
   // 5. Draw data
 
-  const lineGenerator = d3.line()
-    .curve(d3.curveCatmullRomOpen)
-    .x(d => xScale(xAccessor(d)))
-    .y(d => yScale(yAccessor(d)))
+  const line = draw1d(dataset, bounds, xScale, yScale)
 
-  const line = bounds.append("path")
-      .attr("d", lineGenerator(dataset))
-      .attr("fill", "none")
-      .attr("stroke", "#af9358")
-      .attr("stroke-width", 2)
 
   // 6. Draw peripherals
 

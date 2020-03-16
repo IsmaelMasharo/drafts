@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <path></path>
+    <script>
+        function bezier(a,b,c) {
+            function f(x) {
+            return a*x*x + b*x + c;
+            }
+            var x1 = -10, y1 = f(x1),
+            x2 = 10, y2 = f(x2),
+            cx = -b/(2*a), cy = y1 + (cx - x1)*(2*a*x1 + b);
+            var pathData = 'M ' + x1 + ' ' + y1 + ' Q ' + cx + ' ' + cy + ' ' +
+            x2 + ' ' + y2;
+
+            document.getElementsByTagName('path').item(0).setAttribute('d',
+            pathData);
+            }
+            function parabola(a,b,c) {
+            function f(x) {
+            return a*x*x + b*x + c;
+            }
+            var pathData = 'M';
+            for (x = -10; x <= 10; x += 0.1)
+            pathData += ' ' + x + ' ' + f(x);
+
+            document.getElementsByTagName('path').item(1).setAttribute('d',
+            pathData);
+        }
+    </script>
+</body>
+</html>
