@@ -1,7 +1,7 @@
 async function drawParabola() {
 
   // 0. Data model
-  const fn = x => 1/x // Math.pow(x, 2)
+  const fn = x => Math.pow(x, 2)
 
   // 1. Access data
   let dataset = await makeArr(-6, 6, 5000).map(d => {
