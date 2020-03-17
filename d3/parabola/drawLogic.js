@@ -12,7 +12,7 @@ function draw1d(dataset, bounds, xScale, yScale) {
 
   const clamp = (val, min, max) => {
     val = isFinite(val) ? yScale(val) : Math.sign(val)*Infinity
-    return val < min ? min : (val > max ? max : val)
+    return val > Math.abs(max) ? -1: val
   }
 
   const clampLineGenerator = function (points) {
@@ -41,6 +41,10 @@ function draw1d(dataset, bounds, xScale, yScale) {
       }
 
       const dif = viewportY-viewportbefore
+
+      if (viewportY === 0 && viewportY === 0) {
+        continue
+      }
 
       path += ' M ' + moveX + ' ' + Math.min(viewportY, viewportbefore)
       path += ' v ' + Math.max(minWidthHeight, dif)

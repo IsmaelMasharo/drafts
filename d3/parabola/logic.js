@@ -4,14 +4,11 @@ async function drawParabola() {
   const fn = x => 1/x // Math.pow(x, 2)
 
   // 1. Access data
-  let dataset = await makeArr(-6, 6, 1000).map(d => {
+  let dataset = await makeArr(-6, 6, 5000).map(d => {
       return {
           x:d, y:fn(d)
       }
   })
-
-  const xAccessor = d => d.x
-  const yAccessor = d => d.y
 
   // 2. Create chart dimensions
   const width = d3.min([
@@ -52,14 +49,18 @@ async function drawParabola() {
       dimensions.margin.top
     }px)`)
 
+  const { xDomain, yDomain} = computeDomains(
+    dimensions.boundedWidth, dimensions.boundedHeight
+  )
+
   // 4. Create scales
   const xScale = d3.scaleLinear()
-    .domain(d3.extent(dataset, xAccessor))
+    .domain(xDomain)
     .range([0, dimensions.boundedWidth])
     .nice()
 
   const yScale = d3.scaleLinear()
-    .domain(d3.extent(dataset, yAccessor))
+    .domain(yDomain)
     .range([dimensions.boundedHeight, 0])
     .nice()
 
@@ -79,7 +80,7 @@ async function drawParabola() {
   const xAxis = bounds.append("g")
     .call(xAxisGenerator)
       .style("transform", `translateY(${
-        dimensions.boundedHeight
+        yScale(0)
       }px)`)
 
   const yAxis = bounds.append("g")
@@ -89,10 +90,10 @@ async function drawParabola() {
       }px)`)
 
 
-  // draw delta dragable line
+  // delta dragable line
   let data = [
-    {x:xScale(0), y:yScale(0)},
-    {x:xScale(2), y:yScale(0)}
+    {x:xScale(1), y:yScale(0)},
+    {x:xScale(-1), y:yScale(0)}
   ]
 
   const deltaLineGenerator = d3.line()
@@ -101,18 +102,18 @@ async function drawParabola() {
 
   const deltaLine = bounds.append("path")
       .attr("d", deltaLineGenerator(data))
-      .attr("stroke-width", 2)
+      .attr("stroke-width", 3)
 
   const dragC = d3.drag().on('drag', dragCircle)
 
   function dragCircle(d, i, nodes) {
     
     const current = nodes[i]
-    const pair = nodes[i ? 0 : 1]
+    // const pair = nodes[i ? 0 : 1]
 
     // update both circles equidistance x position
     d3.select(current).attr("cx", (position) => position.x += d3.event.dx)
-    d3.select(pair).attr("cx", (position) => position.x -= d3.event.dx)
+    // d3.select(pair).attr("cx", (position) => position.x -= d3.event.dx)
 
     // update delta line
     updatePath()
@@ -146,17 +147,17 @@ async function drawParabola() {
 
   // draw epsilon path
   let ran = [
-    {x:xScale(1), y:yScale(fn(0))},
-    {x:xScale(1), y:yScale(fn(2))}
+    {x:xScale(0), y:yScale(fn(-1))},
+    {x:xScale(0), y:yScale(fn(1))}
   ]
 
   const epsilonLineGenerator = d3.line()
     .x(d => d.x)
     .y(d => d.y)
 
-  const epsilonLine = bounds.append("path")
+    const epsilonLine = bounds.append("path")
       .attr("d", epsilonLineGenerator(ran))
-      .attr("stroke-width", 2)
+      .attr("stroke-width", 3)
 
   function updateEpsilon() {
     epsilonLine.attr('d', epsilonLineGenerator(ran));
