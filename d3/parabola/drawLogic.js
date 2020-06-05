@@ -46,7 +46,9 @@ function draw1d(dataset, bounds, xScale, yScale) {
         continue
       }
 
+      // for y equidistance range: Math.min
       path += ' M ' + moveX + ' ' + Math.min(viewportY, viewportbefore)
+      // for increasing stroke when asymptotic curve
       path += ' v ' + Math.max(minWidthHeight, dif)
     }
     return path
